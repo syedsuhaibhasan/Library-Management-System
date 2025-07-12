@@ -2,16 +2,19 @@
 #include <string>
 using namespace std;
 int const MAX_BOOKS = 100;
+// Updated struct to include copies and ISBN
 struct books
 {
     string name;
     string author;
-    string unique_number;
+    int copies;
+    string isbn;
 };
 void  addbooks(books library[], int &bookcount );
 void  displaybooks(books const library[], int &bookcount );
 void  searchbooks(books const library[], int &bookcount );
 void  deletebooks(books library[], int &bookcount );
+string generate_isbn();
 int main()
 {
     books library [MAX_BOOKS];
@@ -49,7 +52,7 @@ void addbooks(books library[], int &bookcount)
 {
     if (bookcount>=MAX_BOOKS)
     {
-        cout<<"The library has reached it's limit!";
+        cout<<"The library has reached its limit!";
         return;
     }
     cout<<"Enter the name of the book: ";
@@ -57,12 +60,15 @@ void addbooks(books library[], int &bookcount)
     getline(cin, library[bookcount].name);
     cout<<"Enter the author's name: ";
     getline(cin, library[bookcount].author);
-    cout<<"Enter the unique book number: ";
-    getline(cin, library[bookcount].unique_number);
+    cout<<"Enter the number of copies: ";
+    cin >> library[bookcount].copies;
+    cin.ignore();
+    library[bookcount].isbn = generate_isbn();
+    cout << "Generated ISBN (13-digit): " << library[bookcount].isbn << endl;
     bookcount++;
 }
 void displaybooks(const books library[], int &bookcount)
-{   
+{
     if (bookcount==0)
     {
         cout<<"There are no books in the library!";
@@ -71,31 +77,35 @@ void displaybooks(const books library[], int &bookcount)
     for (int i = 0; i < bookcount; i++)
     {
         cout<<i+1 << ". " <<library[i].name<<" by "<<library[i].author;
-        cout<<endl;
-    }  
+        cout<<" | Copies: " << library[i].copies;
+        cout<<" | ISBN: " << library[i].isbn << endl;
+    }
 }
 void searchbooks(const books library[], int &bookcount)
-{   
-       if (bookcount==0)
+{
+    if (bookcount==0)
     {
         cout<<"There are no books in the library!";
         return;
     }
     string searchname;
-    cout<<"Enter the name of the book:";
+    cout<<"Enter the name of the book: ";
     cin.ignore();
     getline(cin, searchname);
-    bool found = false; 
-    for (int i = 1; i <= bookcount; i++)
+    bool found = false;
+    for (int i = 0; i < bookcount; i++)
     {
         if (searchname==library[i].name)
         {
-            cout<<"Found in "<<i<< " row of the shelf "<<endl<<library[i].name<<" by "<<library[i].author;
+            cout<<"Found in "<<i+1<< " row of the shelf "<<endl;
+            cout<<library[i].name<<" by "<<library[i].author;
+            cout<<" | Copies: " << library[i].copies;
+            cout<<" | ISBN: " << library[i].isbn << endl;
             found = true;
             break;
-        }   
+        }
     }
-     if (!found)
+    if (!found)
     {
         cout << "Book not found!";
     }
@@ -103,13 +113,14 @@ void searchbooks(const books library[], int &bookcount)
 void deletebooks(books library[], int&bookcount)
 {
     string deletebook;
-    cout<<"Enter the name of the book you want to delete:";
+    cout<<"Enter the name of the book you want to delete: ";
     cin.ignore();
     getline(cin, deletebook);
 
     if (bookcount==0)
     {
         cout<<"There are no books to be deleted!";
+        return;
     }
     for (int i = 0; i < bookcount; i++)
     {
@@ -121,6 +132,19 @@ void deletebooks(books library[], int&bookcount)
             }
             bookcount--;
             cout<<"Book Deleted successfully";
-        } 
+            return;
+        }
     }
+    cout << "Book not found!";
+}
+// Function to generate a random 13-digit ISBN
+#include <ctime>
+#include <cstdlib>
+string generate_isbn() {
+    string isbn = "";
+    srand((unsigned)time(0) + rand());
+    for (int i = 0; i < 13; i++) {
+        isbn += to_string(rand() % 10);
+    }
+    return isbn;
 }
